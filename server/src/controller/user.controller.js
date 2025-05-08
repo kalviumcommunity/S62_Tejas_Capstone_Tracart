@@ -24,7 +24,7 @@ const createUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await new User({ name, email, password: hashedPassword });
+    const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
     const userResponse = newUser.toObject();
@@ -33,7 +33,8 @@ const createUser = async (req, res) => {
       .status(201)
       .json({ message: "user created successfully.", data: userResponse });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error("Error creating user:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -43,7 +44,8 @@ const fetchAllUsers = async (req, res) => {
 
     return res.status(200).json({ message: "all users - ", data: users });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error("Error fetching users:", error);
+    return res.status(500).json({ error: "Internal server error." });
   }
 };
 
