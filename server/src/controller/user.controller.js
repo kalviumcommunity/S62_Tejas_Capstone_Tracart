@@ -5,14 +5,13 @@ const createUser = async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
-    if (
-      !name ||
-      name.trim() == "" ||
-      !email ||
-      email.trim() == "" ||
-      !password ||
-      password.trim() == ""
-    ) {
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ message: "All fields are required in the request body." });
+    }
+
+    if (name.trim() === "" || email.trim() === "" || password.trim() === "") {
       return res
         .status(400)
         .json({ message: "No fields should be empty in the request body." });
