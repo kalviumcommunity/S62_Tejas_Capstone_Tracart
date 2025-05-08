@@ -19,7 +19,7 @@ const createUser = async (req, res) => {
     const checkIfUSerPresent = await User.findOne({ email: email });
 
     if (checkIfUSerPresent) {
-      return res.status(400).send("User already present");
+      return res.status(400).json({ message: "User already present" });
     }
 
     const newUser = await new User({ name, email, password });
