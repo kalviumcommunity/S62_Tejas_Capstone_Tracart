@@ -16,14 +16,14 @@ const createUser = async (req, res) => {
         .status(400)
         .json({ message: "No fields should be empty in the request body." });
     }
-    const checkIfUSerPresent = await User.findOne({ email: email });
+    const checkIfUserPresent = await User.findOne({ email: email });
 
     if (checkIfUSerPresent) {
       return res.status(400).json({ message: "User already present" });
     }
 
     const newUser = await new User({ name, email, password });
-    newUser.save();
+    await newUser.save();
     return res
       .status(201)
       .json({ message: "user created successfully.", data: newUser });
