@@ -12,9 +12,9 @@ const createUser = async (req, res) => {
       !password ||
       password.trim() == ""
     ) {
-      res
+      return res
         .status(400)
-        .json({ message: "Name should not be empty in request body." });
+        .json({ message: "No fields should be empty in the request body." });
     }
     const checkIfUSerPresent = await User.findOne({ email: email });
 
@@ -28,7 +28,7 @@ const createUser = async (req, res) => {
       .status(201)
       .json({ message: "user created successfully.", data: newUser });
   } catch (error) {
-    res.send(500).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
