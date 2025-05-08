@@ -33,7 +33,7 @@ const createUser = async (req, res) => {
       .json({ message: "user created successfully.", data: userResponse });
   } catch (error) {
     console.error("Error creating user:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -44,7 +44,7 @@ const fetchAllUsers = async (req, res) => {
     return res.status(200).json({ message: "all users - ", data: users });
   } catch (error) {
     console.error("Error fetching users:", error);
-    return res.status(500).json({ error: "Internal server error." });
+    return res.status(500).json({ message: "Internal server error." });
   }
 };
 
