@@ -48,4 +48,36 @@ const fetchAllUsers = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  const userId = req.params;
+  const { name, email, password } = req.body;
+
+  try {
+    if (!name || !email || !password) {
+      return res
+        .status(400)
+        .json({ message: "All fields are required in the request body." });
+    }
+
+    if (name.trim() === "" || email.trim() === "" || password.trim() === "") {
+      return res
+        .status(400)
+        .json({ message: "No fields should be empty in the request body." });
+    }
+
+    const checkIfUserPresent = await User.findOne({ _id: userId });
+    if (!checkIfUserPresent) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // const updateUser = await User.findByIdAndUpdate(
+    //   { _id: userId },
+    //   { name, email, password }
+    // );
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 export { createUser, fetchAllUsers };
