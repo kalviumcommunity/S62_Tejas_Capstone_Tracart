@@ -24,7 +24,6 @@ export default function SubscriptionUpdateForm({
     setError(null);
 
     const token = localStorage.getItem("auth_token");
-    setFormData({ ...formData, cost: parseInt(formData.cost) });
     // console.log(formData)
     try {
       const res = await fetch(
