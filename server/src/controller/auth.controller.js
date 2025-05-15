@@ -22,7 +22,8 @@ const loginUser = async (req, res) => {
 
     const token = jwt.sign(payload, JWT_SECRET);
 
-    res.status(200).json({ message: "Login successful", token });
+    // localStorage.setItem("token", token); // Save token
+    res.status(200).json({ message: "Login successful", token, data: payload });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
@@ -30,6 +31,6 @@ const loginUser = async (req, res) => {
 };
 
 const validate = async (req, res) => {
-  res.status(200).json({ message: "You are logged in." });
+  res.status(200).json({ message: "You are logged in.", data: req.user });
 };
 export { loginUser, validate };

@@ -9,6 +9,6 @@ import {
 router.get("/", fetchSubscriptions);
 router.post("/", createSubscription);
 // router.get("/:subscriptionId");
-router.put("/:subId", updateSubscription);
+router.put("/:id", updateSubscription);
 
 export default router;

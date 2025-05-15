@@ -1,15 +1,8 @@
 import Subscription from "../models/subscriptionModel.js";
 
 const createSubscription = async (req, res) => {
-  const {
-    service_name,
-    cost,
-    currency,
-    billing_cycle,
-    start_date,
-    status,
-    reminder_enabled,
-  } = req.body;
+  const { service_name, cost, currency, billing_cycle, start_date, status } =
+    req.body;
   const { userId } = req.user;
   try {
     if (
@@ -18,8 +11,7 @@ const createSubscription = async (req, res) => {
       !currency ||
       !billing_cycle ||
       !start_date ||
-      !status ||
-      !reminder_enabled
+      !status
     ) {
       return res.status(400).json({ message: "All fields are required!" });
     }
@@ -31,7 +23,6 @@ const createSubscription = async (req, res) => {
       billing_cycle,
       start_date,
       status,
-      reminder_enabled,
     });
     await newSub.save();
 
@@ -43,10 +34,10 @@ const createSubscription = async (req, res) => {
 };
 
 const fetchSubscriptions = async (req, res) => {
-  const { user_id } = req.user;
+  const { userId } = req.user;
   try {
-    const subs = await Subscription.find(user_id);
-    res.json(subs);
+    const subs = await Subscription.find({ user_id: userId });
+    res.json({ message: "All subscriptions - ", data: subs });
   } catch (error) {
     console.error("Error fetching subscriptions: ", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -54,17 +45,11 @@ const fetchSubscriptions = async (req, res) => {
 };
 
 const updateSubscription = async (req, res) => {
-  const {
-    service_name,
-    cost,
-    currency,
-    billing_cycle,
-    start_date,
-    status,
-    reminder_enabled,
-  } = req.body;
+  const { service_name, cost, currency, billing_cycle, start_date, status } =
+    req.body;
 
   const subId = req.params.id;
+  // console.log(subId);
   try {
     if (
       !service_name ||
@@ -72,8 +57,7 @@ const updateSubscription = async (req, res) => {
       !currency ||
       !billing_cycle ||
       !start_date ||
-      !status ||
-      !reminder_enabled
+      !status
     ) {
       return res.status(400).json({ message: "All fields are required!" });
     }
@@ -84,7 +68,7 @@ const updateSubscription = async (req, res) => {
         .json({ message: "Cost must be a positive number" });
     }
     const updatedSub = await Subscription.findOneAndUpdate(
-      { subId },
+      { _id: subId },
       {
         $set: {
           service_name,
@@ -93,7 +77,6 @@ const updateSubscription = async (req, res) => {
           billing_cycle,
           start_date,
           status,
-          reminder_enabled,
         },
       },
       { new: true }
