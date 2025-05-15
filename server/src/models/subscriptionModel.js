@@ -12,10 +12,6 @@ const subscriptionSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    plan_name: {
-      type: String,
-      trim: true,
-    },
     cost: {
       type: Number,
       required: true,
@@ -31,10 +27,6 @@ const subscriptionSchema = new mongoose.Schema(
       enum: ["Monthly", "Yearly", "Weekly", "Quarterly"],
     },
     start_date: {
-      type: Date,
-      required: true,
-    },
-    next_renewal_date: {
       type: Date,
       required: true,
     },
