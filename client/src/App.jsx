@@ -1,11 +1,16 @@
-import "./App.css";
+import TracartHomepage from "./components/TracartHomepage";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import AuthForm from "./components/AuthForm";
+function Home() {
+  const { user, loading, logout } = useAuth();
+  if (loading) return <p>Loading...</p>;
 
-function App() {
-  return (
-    <div>
-      <h1>Tracart Homepage.</h1>
-    </div>
-  );
+  return <div>{user ? <TracartHomepage /> : <AuthForm />}</div>;
 }
+const App = () => (
+  <AuthProvider>
+    <Home />
+  </AuthProvider>
+);
 
 export default App;
