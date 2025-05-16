@@ -87,4 +87,35 @@ const updateSubscription = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-export { createSubscription, updateSubscription, fetchSubscriptions };
+
+const deleteSubscription = async (req, res) => {
+  const subId = req.params.id;
+  const subscription = await Subscription.findOne({
+    _id: subId,
+    user_id: req.user.userId,
+  });
+  console.log(subscription);
+  // await subscription.deleteOne();
+  // await subscription.save();
+  if (subscription) {
+    try {
+      await Subscription.findOneAndDelete({
+        _id: subId,
+        user_id: req.user.userId,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(404).json({ message: "Subscription does not exist." });
+    }
+    res.status(203).json({ message: "Subscription deleted successfully" });
+  } else {
+    res.status(404).json({ message: "Subscription does not exist." });
+  }
+};
+
+export {
+  createSubscription,
+  updateSubscription,
+  fetchSubscriptions,
+  deleteSubscription,
+};
