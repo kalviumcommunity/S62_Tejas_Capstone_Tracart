@@ -16,7 +16,7 @@ export default function TracartHomepage() {
   const [activeSubscriptions, setActiveSubscriptions] = useState(3);
   const [totalYearly, setTotalYearly] = useState("₹00.00");
   const [orbitAngle, setOrbitAngle] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [reload, setReload] = useState(false);
   const { logout, user } = useAuth();
   // Sample subscription data
@@ -154,24 +154,10 @@ export default function TracartHomepage() {
           </motion.div>
           <div className="text-slate-400">Active</div>
         </div>
-        {/* <div className="text-right">
-          <motion.div
-            className="text-2xl font-bold"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            {totalYearly}
-          </motion.div>
-          <div className="text-slate-400">Total yearly</div>
-        </div> */}
       </div>
 
       {/* Subscription List */}
-      <SubscriptionsList
-        setIsModalOpen={setIsModalOpen}
-        setActiveSubscriptions={setActiveSubscriptions}
-      />
+      <SubscriptionsList setActiveSubscriptions={setActiveSubscriptions} />
 
       {/* Bottom Navigation */}
       <motion.div
@@ -211,79 +197,6 @@ export default function TracartHomepage() {
           </motion.button>
         </div>
       </motion.div>
-
-      {/* Upcoming Notification Preview */}
-      {/* <AnimatePresence>
-        {subscriptions.some((sub) => sub.renewsIn <= 2) && (
-          <motion.div
-            className="absolute bottom-24 left-4 right-4 bg-slate-800 rounded-lg p-4 shadow-lg border border-purple-500"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center mr-3">
-                <Zap size={16} />
-              </div>
-              <div className="flex-1">
-                <div className="font-medium">Microsoft 365 renews tomorrow</div>
-                <div className="text-xs text-slate-400">
-                  Tap to view details or manage subscription
-                </div>
-              </div>
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className="ml-2 text-slate-400"
-              >
-                <ChevronRight size={20} />
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence> */}
-
-      <AnimatePresence>
-        {isModalOpen && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            {/* Creative Backdrop */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-purple-900/60 via-pink-800/60 to-slate-900/60 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-
-            {/* Modal Card */}
-            <motion.div
-              className="relative bg-slate-900 border border-purple-600/30 rounded-2xl w-full max-w-md p-6 shadow-xl shadow-purple-900/40"
-              initial={{ scale: 0.9, y: 40, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.9, y: 40, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 250, damping: 18 }}
-            >
-              <SubscriptionForm
-                onSuccess={() => {
-                  setIsModalOpen(false);
-                  setReload((prev) => !prev);
-                }}
-              />
-
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="mt-4 w-full text-sm text-slate-300 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
