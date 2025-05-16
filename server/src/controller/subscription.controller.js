@@ -87,6 +87,7 @@ const updateSubscription = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 const deleteSubscription = async (req, res) => {
   const subId = req.params.id;
   const subscription = await Subscription.findOne({
@@ -111,6 +112,7 @@ const deleteSubscription = async (req, res) => {
     res.status(404).json({ message: "Subscription does not exist." });
   }
 };
+
 export {
   createSubscription,
   updateSubscription,

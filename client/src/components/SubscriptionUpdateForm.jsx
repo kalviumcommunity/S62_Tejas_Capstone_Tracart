@@ -17,6 +17,35 @@ export default function SubscriptionUpdateForm({
       [name]: type === "checkbox" ? checked : value,
     }));
   };
+  const handleDelete = async (id, name) => {
+    if (window.confirm(`Are you sure you want to delete: ${name}?`)) {
+      const token = localStorage.getItem("auth_token");
+
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/subscriptions/${id}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to delete subscription.");
+        }
+
+        // Call the callback to refresh list or show success
+        onSuccess();
+      } catch (err) {
+        console.error("Delete error:", err.message);
+      }
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,15 +71,6 @@ export default function SubscriptionUpdateForm({
 
       if (!res.ok) throw new Error(data.message || "Failed to create");
 
-      // setFormData({
-      //   service_name: "",
-      //   cost: "",
-      //   currency: "INR",
-      //   start_date: "",
-      //   billing_cycle: "Monthly",
-      //   free_trial: false,
-      //   remind_before: "1_day",
-      // });
       onSuccess();
     } catch (err) {
       setError(err.message);
@@ -60,10 +80,8 @@ export default function SubscriptionUpdateForm({
   };
 
   useEffect(() => {
-    // console.log(formData);
     setFormData({ ...subscriptionBase });
     console.log("SDFDSFD", subscriptionBase);
-    // console.log
   }, [subscriptionBase]);
   return (
     <form
@@ -197,6 +215,15 @@ export default function SubscriptionUpdateForm({
         className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded font-medium"
       >
         {loading ? "Saving..." : "Save Subscription"}
+      </button>
+      <button
+        onClick={() => {
+          handleDelete(formData?.id, formData?.service_name);
+        }}
+        disabled={loading}
+        className="w-full bg-purple-600 hover:bg-purple-700 py-2 rounded font-medium"
+      >
+        {"Delete Subscription"}
       </button>
     </form>
   );

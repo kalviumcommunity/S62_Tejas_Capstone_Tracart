@@ -15,13 +15,12 @@ import axios from "axios";
 import { format, differenceInDays } from "date-fns";
 import SubscriptionUpdateForm from "./SubscriptionUpdateForm";
 
-export default function SubscriptionsList({
-  setIsModalOpen,
-  setActiveSubscriptions,
-}) {
+export default function SubscriptionsList({ setActiveSubscriptions }) {
   const [subscriptions, setSubscriptions] = useState([]);
   const [reload, setReload] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [editSubscription, setEditSubscription] = useState({});
   // const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -163,6 +162,48 @@ export default function SubscriptionsList({
       >
         Logout
       </motion.button>
+
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Creative Backdrop */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-purple-900/60 via-pink-800/60 to-slate-900/60 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+
+            {/* Modal Card */}
+            <motion.div
+              className="relative bg-slate-900 border border-purple-600/30 rounded-2xl w-full max-w-md p-6 shadow-xl shadow-purple-900/40"
+              initial={{ scale: 0.9, y: 40, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 40, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 250, damping: 18 }}
+            >
+              <SubscriptionForm
+                onSuccess={() => {
+                  setIsModalOpen(false);
+                  setReload((prev) => !prev);
+                }}
+              />
+
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="mt-4 w-full text-sm text-slate-300 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {isUpdateModalOpen && (
           <motion.div
