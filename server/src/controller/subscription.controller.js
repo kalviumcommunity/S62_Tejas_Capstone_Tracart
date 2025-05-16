@@ -68,7 +68,7 @@ const updateSubscription = async (req, res) => {
         .json({ message: "Cost must be a positive number" });
     }
     const updatedSub = await Subscription.findOneAndUpdate(
-      { _id: subId },
+      { _id: subId, user_id: req.user.userId },
       {
         $set: {
           service_name,
