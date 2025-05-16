@@ -1,0 +1,15 @@
+meta {
+  name: fetch-users
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3001/users
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

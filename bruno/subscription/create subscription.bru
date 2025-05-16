@@ -1,0 +1,27 @@
+meta {
+  name: create subscription
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3001/subscriptions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "service_name" : "hotstar",
+    "cost" : 99,
+    "currency" : "INR",
+    "billing_cycle": "Monthly",
+    "start_date": "2025-05-15T11:54:00Z",
+    "status": "Active",
+    "reminder_enabled": "true"
+  }
+}

@@ -1,0 +1,32 @@
+meta {
+  name: updating subscription
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://localhost:3001/subscriptions/6825b7ca8f6815d361878bb8
+  body: json
+  auth: bearer
+}
+
+params:query {
+  ~: 
+  ~: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "service_name" : "Disney+hotstar",
+    "cost" : 99,
+    "currency" : "INR",
+    "billing_cycle": "Monthly",
+    "start_date": "2025-05-15T11:54:00Z",
+    "status": "Active",
+    "reminder_enabled": "true"
+  }
+}

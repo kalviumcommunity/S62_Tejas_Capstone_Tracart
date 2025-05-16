@@ -1,0 +1,19 @@
+meta {
+  name: Delete
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:3001/subscriptions/:id
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 6821c7fc1d94bb7a8914d12d
+}
+
+auth:bearer {
+  token: {{token}}
+}
