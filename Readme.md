@@ -1,5 +1,9 @@
 # Project Idea: Tracart (a subscription tracker)
 
+Deployed Backend Server: https://s62-tejas-capstone-tracart.onrender.com/
+
+Deployed Frontend Server: https://s62-tejas-capstone-tracart.netlify.app/
+
 ## Problem Statement:
 
 1.  Users often forget about their subscriptions, leading to unnecessary charges.
