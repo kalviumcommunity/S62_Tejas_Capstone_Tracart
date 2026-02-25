@@ -15,16 +15,17 @@ import axios from "axios";
 import { format, differenceInDays } from "date-fns";
 import SubscriptionUpdateForm from "./SubscriptionUpdateForm";
 
-export default function SubscriptionsList({ setActiveSubscriptions }) {
+export default function SubscriptionsList({
+  setActiveSubscriptions,
+  setTotalYearly,
+}) {
   const [subscriptions, setSubscriptions] = useState([]);
   const [reload, setReload] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [editSubscription, setEditSubscription] = useState({});
-  // const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
 
   const calculateNextRenewDate = (startDate, billingCycle) => {
     const baseDate = new Date(startDate);
@@ -40,14 +41,38 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
       case "weekly":
         nextDate.setDate(baseDate.getDate() + 7);
         break;
-      case "every 3 month":
+      case "quarterly":
         nextDate.setMonth(baseDate.getMonth() + 3);
         break;
       default:
+        nextDate.setMonth(baseDate.getMonth() + 1);
         break;
     }
 
     return nextDate;
+  };
+
+  const calculateYearlyCost = (cost, billingCycle, currency) => {
+    let yearlyCost = parseFloat(cost);
+
+    switch (billingCycle.toLowerCase()) {
+      case "monthly":
+        yearlyCost = cost * 12;
+        break;
+      case "yearly":
+        yearlyCost = cost;
+        break;
+      case "weekly":
+        yearlyCost = cost * 52;
+        break;
+      case "quarterly":
+        yearlyCost = cost * 4;
+        break;
+      default:
+        yearlyCost = cost * 12;
+    }
+
+    return { yearlyCost, currency };
   };
 
   useEffect(() => {
@@ -64,7 +89,6 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
 
     const fetchSubscriptions = async () => {
       const token = localStorage.getItem("auth_token");
-      console.log("TOKEN", token);
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/subscriptions`,
@@ -72,13 +96,18 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        console.log(res.data.data);
 
         const subs = res.data.data.map((sub, index) => {
           const renewDate = calculateNextRenewDate(
             sub.start_date,
             sub.billing_cycle
           );
+          const { yearlyCost } = calculateYearlyCost(
+            sub.cost,
+            sub.billing_cycle,
+            sub.currency
+          );
+
           return {
             id: sub._id,
             name: sub.service_name,
@@ -88,16 +117,30 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
             status: sub.status,
             start_date: sub.start_date.substring(0, 10),
             color: colors[index % colors.length],
-            price: `${sub.currency === "INR" ? "₹" : ""}${sub.cost.toFixed(2)}`,
-            cost: parseInt(sub.cost),
+            price: `${sub.currency === "INR" ? "₹" : "$"}${sub.cost.toFixed(
+              2
+            )}`,
+            cost: parseFloat(sub.cost),
             billing_cycle: sub.billing_cycle,
             category: sub.billing_cycle.toLowerCase(),
             renewsIn: differenceInDays(renewDate, new Date()),
             renewDate: format(renewDate, "dd MMM yyyy"),
+            yearlyCost: yearlyCost,
           };
         });
-        setActiveSubscriptions(subs.length);
+
         setSubscriptions(subs);
+        setActiveSubscriptions(subs.length);
+
+        // Calculate total yearly cost
+        const totalYearly = subs.reduce((total, sub) => {
+          return total + sub.yearlyCost;
+        }, 0);
+
+        // Format with currency symbol (assuming all same currency or using first one)
+        const currencySymbol =
+          subs.length > 0 ? (subs[0].currency === "INR" ? "₹" : "$") : "$";
+        setTotalYearly(`${currencySymbol}${totalYearly.toFixed(2)}`);
       } catch (error) {
         console.error("Error fetching subscriptions", error);
       }
@@ -111,13 +154,12 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
       <AnimatePresence>
         {subscriptions.map((sub) => (
           <motion.div
-            onClick={(e) => {
+            key={sub.id}
+            onClick={() => {
               setEditSubscription(sub);
               setIsUpdateModalOpen(true);
             }}
-            key={sub.id}
-            // onClick={}
-            className="bg-slate-800 rounded-xl mb-3 p-4 flex items-center"
+            className="bg-slate-800 rounded-xl mb-3 p-4 flex items-center cursor-pointer hover:bg-slate-700 transition-colors"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, x: -100 }}
@@ -134,14 +176,27 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
               <div className="text-xs text-slate-400">
                 Renews in {sub.renewsIn} days • {sub.renewDate}
               </div>
+              <div className="text-xs text-slate-400 mt-1">
+                {sub.billing_cycle} • {sub.status}
+              </div>
             </div>
             <div className="text-right">
               <div className="font-semibold">{sub.price}</div>
+              <div className="text-xs text-slate-400">
+                {sub.currency === "INR" ? "₹" : "$"}
+                {sub.yearlyCost.toFixed(2)}/yr
+              </div>
               <ChevronRight size={16} className="ml-auto mt-1 text-slate-400" />
             </div>
           </motion.div>
         ))}
       </AnimatePresence>
+
+      {subscriptions.length === 0 && (
+        <div className="text-center py-8 text-slate-400">
+          No subscriptions yet. Add your first one!
+        </div>
+      )}
 
       {/* Add New Subscription Button */}
       <motion.button
@@ -156,13 +211,14 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
 
       <motion.button
         onClick={() => logout(true)}
-        className="mt-4 w-full flex items-center justify-center bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 rounded-xl"
+        className="mt-4 w-full flex items-center justify-center bg-gradient-to-r from-red-600 to-orange-600 text-white p-3 rounded-xl"
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
       >
         Logout
       </motion.button>
 
+      {/* Add Subscription Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div
@@ -171,7 +227,6 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {/* Creative Backdrop */}
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-purple-900/60 via-pink-800/60 to-slate-900/60 backdrop-blur-sm"
               initial={{ opacity: 0 }}
@@ -179,7 +234,6 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
               exit={{ opacity: 0 }}
             />
 
-            {/* Modal Card */}
             <motion.div
               className="relative bg-slate-900 border border-purple-600/30 rounded-2xl w-full max-w-md p-6 shadow-xl shadow-purple-900/40"
               initial={{ scale: 0.9, y: 40, opacity: 0 }}
@@ -204,6 +258,8 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Update Subscription Modal */}
       <AnimatePresence>
         {isUpdateModalOpen && (
           <motion.div
@@ -212,7 +268,6 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {/* Creative Backdrop */}
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-purple-900/60 via-pink-800/60 to-slate-900/60 backdrop-blur-sm"
               initial={{ opacity: 0 }}
@@ -220,7 +275,6 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
               exit={{ opacity: 0 }}
             />
 
-            {/* Modal Card */}
             <motion.div
               className="relative bg-slate-900 border border-purple-600/30 rounded-2xl w-full max-w-md p-6 shadow-xl shadow-purple-900/40"
               initial={{ scale: 0.9, y: 40, opacity: 0 }}
@@ -234,7 +288,6 @@ export default function SubscriptionsList({ setActiveSubscriptions }) {
                   setReload((prev) => !prev);
                 }}
                 subscriptionBase={editSubscription}
-                // setFormData={setEditSubscription}
               />
 
               <button

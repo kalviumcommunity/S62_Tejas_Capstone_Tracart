@@ -18,7 +18,7 @@ const subscriptionSchema = new mongoose.Schema(
     },
     currency: {
       type: String,
-      default: "USD",
+      default: "INR",
       enum: ["USD", "INR", "EUR", "GBP", "JPY", "CAD", "AUD"],
     },
     billing_cycle: {
@@ -35,9 +35,34 @@ const subscriptionSchema = new mongoose.Schema(
       enum: ["Active", "Paused", "Cancelled"],
       default: "Active",
     },
-    reminder_enabled: {
+    category: {
+      type: String,
+      enum: [
+        "Entertainment",
+        "Productivity",
+        "Cloud",
+        "Fitness",
+        "News",
+        "Education",
+        "Other",
+      ],
+      default: "Other",
+    },
+    free_trial: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    trial_end_date: {
+      type: Date,
+    },
+    reminder_days: {
+      type: Number,
+      enum: [1, 3, 7],
+      default: 1,
+    },
+    color: {
+      type: String,
+      default: "#8B5CF6", // Purple
     },
   },
   {
@@ -46,5 +71,4 @@ const subscriptionSchema = new mongoose.Schema(
 );
 
 const Subscription = mongoose.model("Subscription", subscriptionSchema);
-
 export default Subscription;

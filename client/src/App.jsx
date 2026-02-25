@@ -10,6 +10,7 @@ function Home() {
 const App = () => (
   <AuthProvider>
     <Home />
+    {/* additional things to be added */}
   </AuthProvider>
 );
 

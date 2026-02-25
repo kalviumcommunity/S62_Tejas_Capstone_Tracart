@@ -1,57 +1,12 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import SubscriptionForm from "./SubscriptionForm";
-import { useAuth } from "../context/AuthContext";
-import {
-  Calendar,
-  Bell,
-  Settings,
-  CreditCard,
-  Plus,
-  ChevronRight,
-  Zap,
-} from "lucide-react";
+import { motion } from "framer-motion";
+import { Calendar, Bell, Settings, CreditCard, Plus, Zap } from "lucide-react";
 import SubscriptionsList from "./SubscriptionList";
+
 export default function TracartHomepage() {
-  const [activeSubscriptions, setActiveSubscriptions] = useState(3);
-  const [totalYearly, setTotalYearly] = useState("₹00.00");
+  const [activeSubscriptions, setActiveSubscriptions] = useState(0);
+  const [totalYearly, setTotalYearly] = useState("₹0.00");
   const [orbitAngle, setOrbitAngle] = useState(0);
-  // const [isModalOpen, setIsModalOpen] = useState(false);
-  const [reload, setReload] = useState(false);
-  const { logout, user } = useAuth();
-  // Sample subscription data
-  const subscriptions = [
-    {
-      id: 1,
-      name: "Netflix",
-      icon: "🔴",
-      color: "bg-red-600",
-      price: "₹649.00",
-      category: "entertainment",
-      renewsIn: 8,
-      renewDate: "20 May 2025",
-    },
-    {
-      id: 2,
-      name: "Spotify",
-      icon: "🟢",
-      color: "bg-green-500",
-      price: "₹119.00",
-      category: "entertainment",
-      renewsIn: 14,
-      renewDate: "26 May 2025",
-    },
-    {
-      id: 3,
-      name: "Microsoft 365",
-      icon: "🔵",
-      color: "bg-blue-500",
-      price: "₹1,078.00",
-      category: "productivity",
-      renewsIn: 1,
-      renewDate: "13 May 2025",
-    },
-  ];
 
   // Animate orbit continuously
   useEffect(() => {
@@ -60,17 +15,57 @@ export default function TracartHomepage() {
     }, 50);
 
     return () => clearInterval(timer);
-  }, [reload]);
+  }, []);
 
-  // Filter subscriptions based on category
-  const filteredSubscriptions = subscriptions;
+  // Create orbital dots based on active subscriptions
+  const createOrbitalDots = () => {
+    const dots = [];
+    const radius = 120;
+
+    for (let i = 0; i < Math.max(3, activeSubscriptions); i++) {
+      const angle = (360 / Math.max(3, activeSubscriptions)) * i + orbitAngle;
+      const x = radius * Math.cos((angle * Math.PI) / 180);
+      const y = radius * Math.sin((angle * Math.PI) / 180);
+
+      const colors = [
+        "bg-red-500",
+        "bg-green-500",
+        "bg-blue-500",
+        "bg-yellow-500",
+        "bg-pink-500",
+        "bg-purple-500",
+      ];
+      const color = colors[i % colors.length];
+
+      dots.push(
+        <motion.div
+          key={i}
+          className={`absolute w-4 h-4 rounded-full ${color} flex items-center justify-center`}
+          style={{ x, y }}
+          whileHover={{ scale: 1.5 }}
+        >
+          <motion.div
+            className="w-3 h-3 rounded-full bg-white"
+            animate={{
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              delay: i * 0.5,
+            }}
+          />
+        </motion.div>
+      );
+    }
+    return dots;
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-900 text-white font-medium">
       {/* Header */}
       <div className="pt-3 px-7 flex justify-between items-center">
         <h1 className="text-2xl font-black text-current">tracart</h1>
-        {/* <h1>jupitersorbeet</h1> */}
         <motion.button
           whileTap={{ scale: 0.95 }}
           className="p-2 rounded-full bg-slate-800"
@@ -111,39 +106,13 @@ export default function TracartHomepage() {
           }}
         />
 
-        {/* Subscription Indicators */}
-        {subscriptions.map((sub, index) => {
-          const angle = (360 / subscriptions.length) * index + orbitAngle;
-          const radius = 120;
-          const x = radius * Math.cos((angle * Math.PI) / 180);
-          const y = radius * Math.sin((angle * Math.PI) / 180);
-
-          return (
-            <motion.div
-              key={sub.id}
-              className={`absolute w-4 h-4 rounded-full bg-white flex items-center justify-center`}
-              style={{ x, y }}
-              whileHover={{ scale: 1.5 }}
-            >
-              <motion.div
-                className={`w-3 h-3 rounded-full ${sub.color}`}
-                animate={{
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  delay: index * 0.5,
-                }}
-              />
-            </motion.div>
-          );
-        })}
+        {/* Dynamic Subscription Indicators */}
+        {createOrbitalDots()}
       </div>
 
       {/* Stats */}
       <div className="flex justify-between px-8 pb-4">
-        <div>
+        <div className="text-center">
           <motion.div
             className="text-4xl font-bold"
             initial={{ opacity: 0, y: 20 }}
@@ -152,12 +121,26 @@ export default function TracartHomepage() {
           >
             {activeSubscriptions}
           </motion.div>
-          <div className="text-slate-400">Active</div>
+          <div className="text-slate-400 text-sm">Active</div>
+        </div>
+        <div className="text-center">
+          <motion.div
+            className="text-4xl font-bold"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            {totalYearly}
+          </motion.div>
+          <div className="text-slate-400 text-sm">Yearly Cost</div>
         </div>
       </div>
 
       {/* Subscription List */}
-      <SubscriptionsList setActiveSubscriptions={setActiveSubscriptions} />
+      <SubscriptionsList
+        setActiveSubscriptions={setActiveSubscriptions}
+        setTotalYearly={setTotalYearly}
+      />
 
       {/* Bottom Navigation */}
       <motion.div
