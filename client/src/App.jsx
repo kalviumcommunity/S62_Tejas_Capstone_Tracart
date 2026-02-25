@@ -11,6 +11,7 @@ const App = () => (
   <AuthProvider>
     <Home />
     {/* additional things to be added */}
+    {/* random comment */}
   </AuthProvider>
 );
 
